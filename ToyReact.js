@@ -71,7 +71,6 @@ export const ToyReact = {
     insertChildren(children)
     return element
   },
-
   render(vdom, element) {
     vdom.mountTo(element)
   }

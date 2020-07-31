@@ -5,6 +5,7 @@ export class ElementWrapper {
   setAttribute(name, value) {
     if (name.match(/^on([\s\S]+)$/)) {
       const eventName = (RegExp.$1).replace(/^[\s\S]/, s => s.toLowerCase())
+      console.log('eventName', eventName)
       this.root.addEventListener(eventName, value)
     }
     if (name === 'className') {
@@ -46,11 +47,12 @@ export class Component {
   }
   setAttribute(name, value) {
     if (name.match(/^on([\s\S]+)$/)) {
-      const eventName = (RegExp.$1).replace(/^[\s\S]/, s => s.toLowerCase())
-      this.root.addEventListener(eventName, value)
+      // const eventName = (RegExp.$1).replace(/^[\s\S]/, s => s.toLowerCase())
+      // this.root.addEventListener(eventName, value)
+      console.log('RegExp.$1', RegExp.$1)
     }
     this.props[name] = value
-    // this[name] = value
+    this[name] = value
   }
   appendChild(vchild) {
     this.children.push(vchild)
@@ -77,9 +79,13 @@ export class Component {
   setState(state) {
     const merge = (oldState, newState) => {
       for (const p in newState) {
-        if (typeof newState[p] === 'object') {
+        if (typeof newState[p] === 'object' && newState[p] !== null) {
           if (typeof oldState[p] !== 'object') {
-            oldState[p] = {}
+            if (Array.isArray(oldState[p])) {
+              oldState[p] = []
+            } else {
+              oldState[p] = {}
+            }
           }
           merge(oldState[p], newState[p])
         } else {
@@ -111,6 +117,9 @@ export const ToyReact = {
         if (typeof child === 'object' && child instanceof Array) {
           insertChildren(child)
         } else {
+          if (child == null) {
+            child = ''
+          }
           if (
             !(child instanceof Component) &&
             !(child instanceof ElementWrapper) &&

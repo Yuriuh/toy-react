@@ -1,70 +1,111 @@
 import { ToyReact, Component } from './ToyReact'
 
 class Square extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      value: null
-    }
-  }
   render() {
     return (
-      <button className="square" onClick={ () => this.setState({value: 'x'}) }>
-        { this.state.value ? this.state.value : '' }
+      <button className="square" onClick={ this.props.onClick }>
+        { this.props.value }
       </button>
     )
   }
 }
 
 class Board extends Component {
+
   renderSquare(i) {
     return (
-      <Square value={i} />
-    )
+      <Square
+        value={ this.props.squares[i] }
+        onClick={ () => this.props.onClick(i) }
+      />
+    );
   }
+
   render() {
     return (
       <div>
+        {/* <div className="status">{status}</div> */}
         <div className="board-row">
-          { this.renderSquare(0) }
-          { this.renderSquare(1) }
-          { this.renderSquare(2) }
+          {this.renderSquare(0)}
+          {this.renderSquare(1)}
+          {this.renderSquare(2)}
         </div>
         <div className="board-row">
-          { this.renderSquare(3) }
-          { this.renderSquare(4) }
-          { this.renderSquare(5) }
+          {this.renderSquare(3)}
+          {this.renderSquare(4)}
+          {this.renderSquare(5)}
         </div>
         <div className="board-row">
-          { this.renderSquare(6) }
-          { this.renderSquare(7) }
-          { this.renderSquare(8) }
+          {this.renderSquare(6)}
+          {this.renderSquare(7)}
+          {this.renderSquare(8)}
         </div>
       </div>
-    )
+    );
   }
 }
 
-const board = <Board></Board>
+class Game extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null),
+      xIsNext: true,
+    };
+  }
+
+  render() {
+    const squares = this.state.squares.slice();
+
+    return (
+      <div className="game">
+        <div className="game-board">
+          <Board
+            squares={ squares }
+            onClick={ i => this.handleClick(i) }
+          />
+        </div>
+      </div>
+    );
+  }
+
+  handleClick(i) {
+    const squares = this.state.squares.slice();
+    if (calculateWinner(squares) || squares[i]) {
+      return;
+    }
+    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    this.setState({
+      squares: squares,
+      xIsNext: !this.state.xIsNext,
+    });
+  }
+
+}
+
+// ========================================
 
 ToyReact.render(
-  board,
+  <Game />,
   document.body
-)
+);
 
-/*
-const h = ToyReact.createElement
-const a = <div name="a" id="id-a">
-  <div>1</div>
-  <div>2</div>
-  <div>3</div>
-</div>
-
-h('div', {
-  name: 'a',
-  id: 'id-a',
-  h('span', null, '1')
-  h('span', null, '2')
-  h('span', null, '3')
-})
-*/
+function calculateWinner(squares) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+  return null;
+}
